@@ -65,7 +65,7 @@ void ppu_clear_sprite0();
 
 void ppu_render();
 
-void ppu_render_background(bool mirror);
+void ppu_render_background();
 
 void ppu_render_nametables();
 

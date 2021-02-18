@@ -102,9 +102,7 @@ void ppu_render()
 
 		if (ppumask & 0x08)
 		{
-			//if (scroll_x > 0)
-			//	ppu_render_background(true);
-			ppu_render_background(false);
+			ppu_render_background();
 		}
 
 		if (ppumask & 0x10)
@@ -153,12 +151,10 @@ void increase_x()
 	}
 }
 
-void ppu_render_background(bool mirror)
+void ppu_render_background()
 {
-	//u16 sx = scroll_x + (mirror & 1 ? 256 : 0);
 	int patternaddr = ppuctrl & 0x10 ? 0x1000 : 0x0000;
 	int paladdr = ppuctrl & 0x10 ? 0x3f10 : 0x3f00;
-	//int baseaddr = ppu_t;
 	int y = scanline / 8;
 
 	u8 byte1, byte2;
@@ -169,12 +165,10 @@ void ppu_render_background(bool mirror)
 	int xMin = scroll_x / 8;
 	int xMax = (scroll_x + 256) / 8;
 
-	//y = 8;
-
 	for (int x = xMin; x <= xMax; x++)
 	{
-		//int addr = baseaddr + (ppu_v & 0xfff);
 		int addr = 0;
+		int natx = 0;
 
 		if (x < 32)
 		{
@@ -183,11 +177,15 @@ void ppu_render_background(bool mirror)
 		else if (x < 64)
 		{
 			addr = 0x2400 + 32 * y + (x - 32);
+			natx = 32;
 		}
 		else
 		{
 			addr = 0x2800 + 32 * y + (x - 64);
+			natx = 64;
 		}
+
+		addr ^= ppuctrl & 1 ? 0x400 : 0;
 
 		int offx = x * 8 - sx;
 		int offy = y * 8;
@@ -196,13 +194,7 @@ void ppu_render_background(bool mirror)
 
 		int tileid = vram[addr];
 
-		int bit2 = get_attribute_index(addr & 0x1f, ((addr & 0x3e0) >> 5), vram[baseaddr + 0x3c0 + (y / 32) * 8 + (x / 4)]);
-
-		//byte1 = vram[patternaddr + tileid * 16 + (y % 8) + 0];
-		//byte2 = vram[patternaddr + tileid * 16 + (y % 8) + 8];
-
-		//memcpy(bytes1, vram + patternaddr + (int)(tileid * 16) + 0, 8);
-		//memcpy(bytes2, vram + patternaddr + (int)(tileid * 16) + 8, 8);
+		int bit2 = get_attribute_index(addr & 0x1f, ((addr & 0x3e0) >> 5), vram[baseaddr + 0x3c0 + (y / 4) * 8 + ((x - natx) / 4)]);
 
 		for (int row = 0; row < 8; row++)
 		{
@@ -210,12 +202,11 @@ void ppu_render_background(bool mirror)
 			byte2 = vram[patternaddr + tileid * 16 + row + 8];
 			for (int col = 0; col < 8; col++)
 			{
-				//int bit0 = byte1 >> (7 - ((xp + col) % 8)) & 1;
-				//int bit1 = byte2 >> (7 - ((xp + col) % 8)) & 1;
-				//int bit0 = byte1 >> (7 - ((xp + col) % 8)) & 1;
-				//int bit1 = byte2 >> (7 - ((xp + col) % 8)) & 1;
 				int xp = offx + (7 - col);
 				int yp = offy + row;
+
+				if (xp > 255)
+					continue;
 
 				int bit0 = byte1 & 1 ? 1 : 0;
 				int bit1 = byte2 & 1 ? 1 : 0;
