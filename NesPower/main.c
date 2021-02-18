@@ -58,7 +58,9 @@ int main()
 	char* romname = { "../../../../tests/scroll_r.nes" };
 
 	if (!load_rom(romname))
+	{
 		exit(1);
+	}
 
 	cpu_init(romname);
 	ppu_init();

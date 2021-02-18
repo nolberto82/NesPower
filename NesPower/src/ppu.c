@@ -38,6 +38,13 @@ void ppu_init()
 
 void ppu_draw_frame()
 {
+	//printf("%i\n", -scroll_x);
+
+	u16 sx = scroll_x + ((ppuctrl & 1) ? 256 : 0);
+	SDL_Rect rect = { -sx, -8 * APP_SCALE, 208 * APP_SCALE, 208 * APP_SCALE };
+	//SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+	//SDL_RenderFillRect(renderer, &rect);
+	//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_UpdateTexture(screen, NULL, gfxdata, 256 * sizeof(unsigned char) * 4);
 	SDL_RenderCopy(renderer, screen, NULL, NULL);
 	SDL_RenderPresent(renderer);
@@ -95,7 +102,9 @@ void ppu_render()
 
 		if (ppumask & 0x08)
 		{
-			ppu_render_background();
+			//if (scroll_x > 0)
+			//	ppu_render_background(true);
+			ppu_render_background(false);
 		}
 
 		if (ppumask & 0x10)
@@ -144,11 +153,13 @@ void increase_x()
 	}
 }
 
-void ppu_render_background()
+void ppu_render_background(bool mirror)
 {
+	//u16 sx = scroll_x + (mirror & 1 ? 256 : 0);
 	int patternaddr = ppuctrl & 0x10 ? 0x1000 : 0x0000;
 	int paladdr = ppuctrl & 0x10 ? 0x3f10 : 0x3f00;
-	int y = scanline % 30;
+	//int baseaddr = ppu_t;
+	int y = scanline / 8;
 
 	u8 byte1, byte2;
 
@@ -158,11 +169,12 @@ void ppu_render_background()
 	int xMin = scroll_x / 8;
 	int xMax = (scroll_x + 256) / 8;
 
+	//y = 8;
+
 	for (int x = xMin; x <= xMax; x++)
 	{
 		//int addr = baseaddr + (ppu_v & 0xfff);
 		int addr = 0;
-		int natx = 0;
 
 		if (x < 32)
 		{
@@ -171,16 +183,11 @@ void ppu_render_background()
 		else if (x < 64)
 		{
 			addr = 0x2400 + 32 * y + (x - 32);
-			natx = 32;
 		}
 		else
 		{
 			addr = 0x2800 + 32 * y + (x - 64);
-			natx = 64;
 		}
-
-		//wrap back to 1st nametable
-		addr ^= ppuctrl & 1 ? 0x400 : 0;
 
 		int offx = x * 8 - sx;
 		int offy = y * 8;
@@ -189,12 +196,7 @@ void ppu_render_background()
 
 		int tileid = vram[addr];
 
-		if (addr == 0x24c0 )
-		{
-			int yu = 0;
-		}
-
-		int bit2 = get_attribute_index(addr & 0x1f, ((addr & 0x3e0) >> 5), vram[baseaddr + 0x3c0 + y / 4 * 8 + ((x - natx) / 4)]);
+		int bit2 = get_attribute_index(addr & 0x1f, ((addr & 0x3e0) >> 5), vram[baseaddr + 0x3c0 + (y / 32) * 8 + (x / 4)]);
 
 		//byte1 = vram[patternaddr + tileid * 16 + (y % 8) + 0];
 		//byte2 = vram[patternaddr + tileid * 16 + (y % 8) + 8];
@@ -214,9 +216,6 @@ void ppu_render_background()
 				//int bit1 = byte2 >> (7 - ((xp + col) % 8)) & 1;
 				int xp = offx + (7 - col);
 				int yp = offy + row;
-
-				if (xp >= 256)
-					continue;
 
 				int bit0 = byte1 & 1 ? 1 : 0;
 				int bit1 = byte2 & 1 ? 1 : 0;
