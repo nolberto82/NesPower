@@ -42,7 +42,7 @@ void cpu_init(char* filename)
 	cpucycles = 0;
 	totalcycles = 0;
 	app_running = true;
-	//tracing = true;
+	//app_tracing = true;
 
 	if (app_tracing)
 	{
@@ -348,8 +348,7 @@ void get_flags(char* flags)
 
 void BRK()
 {
-	app_running = false;
-	return 0;
+	//app_running = false;
 }
 
 void NMI()
@@ -1072,5 +1071,5 @@ u16 get_indi()
 u16 get_rela()
 {
 	u8 b1 = cpu_read(pc);
-	return pc + (u8)(b1 + 1); ;
+	return pc + (s8)(b1 + 1);
 }

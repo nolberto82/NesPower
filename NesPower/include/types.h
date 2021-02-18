@@ -18,7 +18,7 @@ typedef int bool;
 #define APP_WIDTH   256
 #define APP_HEIGHT  240
 
-#define APP_SCALE 2
+#define APP_SCALE 3
 
 SDL_Renderer* renderer;
 SDL_Window* window;

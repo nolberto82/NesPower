@@ -1054,30 +1054,6 @@
 			"value" : "FALSE"
 		},
 		{
-			"name" : "NesPowe_BINARY_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : "D:/Emulators/NesPower/out/build/x64-Debug (default)"
-		},
-		{
-			"name" : "NesPowe_SOURCE_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : "D:/Emulators/NesPower"
-		},
-		{
 			"name" : "NesPower_BINARY_DIR",
 			"properties" : 
 			[

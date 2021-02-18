@@ -1,10 +1,18 @@
 #include "../include/mapper.h"
 #include "../include/ppu.h"
 #include "../include/controls.h"
+#include "direct.h"
 //#include "../main.h"
 
 bool load_rom(char* filename)
 {
+	char cd[FILENAME_MAX];
+	_getcwd(cd, sizeof(cd));
+	printf("path: %s", cd);
+
+	if (filename == NULL)
+		return 0;
+
 	FILE* fp = fopen(filename, "rb");
 
 	if (fp == NULL)
@@ -16,7 +24,7 @@ bool load_rom(char* filename)
 
 	rom = malloc(fsize);
 
-	if (rom == NULL)
+	if (!rom)
 	{
 		fclose(fp);
 		return 0;
@@ -61,13 +69,13 @@ void set_mapper()
 	case 0:
 		if (prgbanks == 1)
 		{
-			memcpy(ram + 0xc000, rom + 0x10, prgsize);
-			memcpy(vram, rom + 0x10 + 0x4000, chrsize);
+			memcpy(&ram[0xc000], rom + 0x10, prgsize);
+			memcpy(&vram[0x0000], rom + 0x10 + 0x4000, chrsize);
 		}
 		else
 		{
-			memcpy(ram + 0x8000, rom + 0x10, prgsize);
-			memcpy(vram, rom + 0x10 + prgsize, chrsize);
+			memcpy(&ram[0x8000], rom + 0x10, prgsize);
+			memcpy(&vram[0x0000], rom + 0x10 + prgsize, chrsize);
 		}
 		break;
 	}
@@ -102,21 +110,22 @@ u8 cpu_read(u16 addr)
 		val = ppustatus;
 		ppu_clear_vblank();
 		ram[addr] = ppustatus;
+		ppu_w = 0;
 		return val;
 	case 0x2007:
-		if (v < 0x3f00)
+		if (ppu_v < 0x3f00)
 		{
 			val = ppu_dummy2007;
-			ppu_dummy2007 = vram[v];
+			ppu_dummy2007 = vram[ppu_v];
 		}
 
 		if (ppuctrl & 0x04)
 		{
-			v += 32;
+			ppu_v += 32;
 		}
 		else
 		{
-			v++;
+			ppu_v++;
 		}
 		return val;
 	case 0x4016:
@@ -136,6 +145,7 @@ void cpu_write(u16 addr, u8 val)
 		ppuctrl = val;
 
 		//write_ppu_ctrl(val);
+		ppu_t = (ppu_t & 0xc00) | val << 10;
 
 		if (val & 0x10)
 		{
@@ -154,40 +164,43 @@ void cpu_write(u16 addr, u8 val)
 		oammem[ppuoamaddr++] = val;
 		break;
 	case 0x2005:
-		if (!w)
+		if (!ppu_w)
 		{
+			ppu_t = (ppu_t & 0x7fe0) | (val >> 3);
+			ppu_x = val & 0x07;
 			scroll_x = val;
 		}
 		else
 		{
+			ppu_t = (ppu_t & 0xc1f) | ((val & 0x07) << 12) | ((val & 0xF8) << 2);
 			scroll_y = val;
 		}
 
-		w ^= 1;
+		ppu_w ^= 1;
 		break;
 	case 0x2006:
-		if (!w)
+		if (!ppu_w)
 		{
-			t = (t & 0xff) | val << 8;
+			ppu_t = (ppu_t & 0xff) | val << 8;
 		}
 		else
 		{
-			t = (t & 0xff00) | val;
-			v = t;
+			ppu_t = (ppu_t & 0xff00) | val;
+			ppu_v = ppu_t;
 		}
 
-		w ^= 1;
+		ppu_w ^= 1;
 		break;
 	case 0x2007:
-		ppu_write(v, val);
+		ppu_write(ppu_v, val);
 
 		if (ppuctrl & 0x04)
 		{
-			v += 32;
+			ppu_v += 32;
 		}
 		else
 		{
-			v++;
+			ppu_v++;
 		}
 		break;
 	case 0x4014:

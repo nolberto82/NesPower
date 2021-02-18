@@ -196,12 +196,6 @@ CMAKE_TOOLCHAIN_FILE:UNINITIALIZED=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
 //Value Computed by CMake
-NesPowe_BINARY_DIR:STATIC=D:/Emulators/NesPower/out/build/x64-Debug (default)
-
-//Value Computed by CMake
-NesPowe_SOURCE_DIR:STATIC=D:/Emulators/NesPower
-
-//Value Computed by CMake
 NesPower_BINARY_DIR:STATIC=D:/Emulators/NesPower/out/build/x64-Debug (default)
 
 //Value Computed by CMake

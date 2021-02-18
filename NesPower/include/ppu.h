@@ -13,19 +13,18 @@ u8 ppuscroll;
 u8 ppuaddr;
 u8 ppudata;
 
-u16 v;
 bool latchtoggle;
 bool scrolltoggle;
 
 u8 ppu_dummy2007;
 
-u16 scroll_x;
+u8 scroll_x;
 u8 scroll_y;
 
-u16 v;
-u16 t;
-u8 x;
-u8 w;
+u16 ppu_v;
+u16 ppu_t;
+u8 ppu_x;
+u8 ppu_w;
 
 int nametableaddr;
 int patternaddr;
@@ -66,9 +65,9 @@ void ppu_clear_sprite0();
 
 void ppu_render();
 
-void ppu_render_background(u16 nameaddr);
+void ppu_render_background(bool mirror);
 
-void ppu_render_background_bak();
+void ppu_render_nametables();
 
 void ppu_render_sprites(u8 frontback);
 

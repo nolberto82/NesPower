@@ -7,7 +7,7 @@ void ppu_init()
 
 	cycle = 0;
 
-	FILE* fp = fopen("palettes/ASQ_realityA.pal", "rb");
+	FILE* fp = fopen("../../../../palettes/ASQ_realityA.pal", "rb");
 
 	if (fp == NULL)
 	{
@@ -31,6 +31,9 @@ void ppu_init()
 
 	ppu_dummy2007 = 0;
 	screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, APP_WIDTH, APP_HEIGHT);
+
+	if (screen == NULL)
+		exit(1);
 }
 
 void ppu_draw_frame()
@@ -39,12 +42,11 @@ void ppu_draw_frame()
 
 	u16 sx = scroll_x + ((ppuctrl & 1) ? 256 : 0);
 	SDL_Rect rect = { -sx, -8 * APP_SCALE, 208 * APP_SCALE, 208 * APP_SCALE };
-	SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-	SDL_RenderFillRect(renderer, &rect);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	//SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+	//SDL_RenderFillRect(renderer, &rect);
+	//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_UpdateTexture(screen, NULL, gfxdata, 256 * sizeof(unsigned char) * 4);
 	SDL_RenderCopy(renderer, screen, NULL, NULL);
-
 	SDL_RenderPresent(renderer);
 }
 
@@ -100,8 +102,9 @@ void ppu_render()
 
 		if (ppumask & 0x08)
 		{
-			ppu_render_background(0x2000);
-			//ppu_render_background(0x2000 + (mirrornametable) * 0x400);
+			//if (scroll_x > 0)
+			//	ppu_render_background(true);
+			ppu_render_background(false);
 		}
 
 		if (ppumask & 0x10)
@@ -139,59 +142,109 @@ void ppu_render()
 
 void increase_x()
 {
-	if ((v & 0x1f) == 0x1f)
+	if ((ppu_v & 0x1f) == 0x1f)
 	{
-		v &= ~0x1f;
-		v ^= 0x400;
+		ppu_v &= ~0x1f;
+		ppu_v ^= 0x400;
 	}
 	else
 	{
-		v++;
+		ppu_v++;
 	}
 }
 
-void ppu_render_background(u16 nameaddr)
+void ppu_render_background(bool mirror)
 {
-	if (ppuctrl & 1)
-	{
-		int yu = 0;
-	}
-
-	//ppuctrl = 0x11;
-	//u16 sx = scroll_x + ((ppuctrl & 1) ? 256 : 0);
-	//int nametableaddr = 0x2000 ^ ((ppuctrl & 1) ? 0x400 : 0);
-	u8 sx = scroll_x;// +((ppuctrl & 1) ? 256 : 0);
-	//int nametableaddr = 0x2000 ^ ((ppuctrl & 1) ? 0x400 : 0);
+	//u16 sx = scroll_x + (mirror & 1 ? 256 : 0);
 	int patternaddr = ppuctrl & 0x10 ? 0x1000 : 0x0000;
 	int paladdr = ppuctrl & 0x10 ? 0x3f10 : 0x3f00;
-	int y = scanline;
+	//int baseaddr = ppu_t;
+	int y = scanline / 8;
 
 	u8 byte1, byte2;
 
-	//vram[0x2000] = 0x16;
+	u8 sx = scroll_x;
+	u8 xp = ppu_v & 0x1f;
 
-	for (int x = 0; x < 256; x++)
+	int xMin = scroll_x / 8;
+	int xMax = (scroll_x + 256) / 8;
+
+	//y = 8;
+
+	for (int x = xMin; x <= xMax; x++)
 	{
-		int addr = 0x2000 + ((ppuctrl & 1) ? 0x800 : 0) + (y / 8 * 32) + x / 8;
-		int tileid = vram[addr];
+		//int addr = baseaddr + (ppu_v & 0xfff);
+		int addr = 0;
 
-		if (addr == 0x2020)
+		if (x < 32)
 		{
-			int yu = 0;
+			addr = 0x2000 + 32 * y + x;
+		}
+		else if (x < 64)
+		{
+			addr = 0x2400 + 32 * y + (x - 32);
+		}
+		else
+		{
+			addr = 0x2800 + 32 * y + (x - 64);
 		}
 
-		int bit2 = get_attribute_index(addr & 0x1f, ((addr & 0x3e0) >> 5), vram[0x2000 + 0x3c0 + (y / 32) * 8 + (x / 32)]);
+		int offx = x * 8 - sx;
+		int offy = y * 8;
 
-		byte1 = vram[patternaddr + tileid * 16 + (y % 8) + 0];
-		byte2 = vram[patternaddr + tileid * 16 + (y % 8) + 8];
+		int baseaddr = addr & 0x2c00;
 
-		int bit0 = byte1 >> (7 - (x % 8)) & 1;
-		int bit1 = byte2 >> (7 - (x % 8)) & 1;
+		int tileid = vram[addr];
 
-		int colorindex = bit2 * 4 + (bit0 | bit1 * 2);
+		int bit2 = get_attribute_index(addr & 0x1f, ((addr & 0x3e0) >> 5), vram[baseaddr + 0x3c0 + (y / 32) * 8 + (x / 4)]);
 
-		gfxdata[y * 256 + x - sx] = palettes[vram[0x3f00 + colorindex]];
+		//byte1 = vram[patternaddr + tileid * 16 + (y % 8) + 0];
+		//byte2 = vram[patternaddr + tileid * 16 + (y % 8) + 8];
+
+		//memcpy(bytes1, vram + patternaddr + (int)(tileid * 16) + 0, 8);
+		//memcpy(bytes2, vram + patternaddr + (int)(tileid * 16) + 8, 8);
+
+		for (int row = 0; row < 8; row++)
+		{
+			byte1 = vram[patternaddr + tileid * 16 + row + 0];
+			byte2 = vram[patternaddr + tileid * 16 + row + 8];
+			for (int col = 0; col < 8; col++)
+			{
+				//int bit0 = byte1 >> (7 - ((xp + col) % 8)) & 1;
+				//int bit1 = byte2 >> (7 - ((xp + col) % 8)) & 1;
+				//int bit0 = byte1 >> (7 - ((xp + col) % 8)) & 1;
+				//int bit1 = byte2 >> (7 - ((xp + col) % 8)) & 1;
+				int xp = offx + (7 - col);
+				int yp = offy + row;
+
+				int bit0 = byte1 & 1 ? 1 : 0;
+				int bit1 = byte2 & 1 ? 1 : 0;
+
+				byte1 >>= 1;
+				byte2 >>= 1;
+
+				int colorindex = bit2 * 4 + (bit0 | bit1 * 2);
+
+				gfxdata[yp * 256 + xp] = palettes[vram[0x3f00 + colorindex]];
+			}
+		}
+
+		//ppu_draw_frame();
 	}
+}
+
+void ppu_render_nametables()
+{
+	int patternaddr = ppuctrl & 0x10 ? 0x1000 : 0x0000;
+	int paladdr = ppuctrl & 0x10 ? 0x3f10 : 0x3f00;
+	int baseaddr = 0x2000;
+
+	for (int addr = 0; addr < 0x3c0; addr++)
+	{
+		u8 sx = addr & 0x1f;
+		u16 tileid = vram[baseaddr + addr];
+	}
+
 }
 
 void ppu_render_sprites(u8 frontback)

@@ -55,7 +55,7 @@ int main()
 
 	sdl_init();
 
-	char* romname = { "tests/scroll_h.nes" };
+	char* romname = { "../../../../tests/scroll_r.nes" };
 
 	if (!load_rom(romname))
 	{
@@ -65,6 +65,8 @@ int main()
 	cpu_init(romname);
 	ppu_init();
 	controls_init();
+
+	app_running = true;
 
 	while (app_running)
 	{
