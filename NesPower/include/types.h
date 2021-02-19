@@ -20,6 +20,9 @@ typedef int bool;
 
 #define APP_SCALE 3
 
+float scale_x;
+float scale_y;
+
 SDL_Renderer* renderer;
 SDL_Window* window;
 SDL_Texture* screen;

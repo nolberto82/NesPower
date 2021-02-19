@@ -3,6 +3,8 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
+add_definitions(/ZI)
+
 find_package(SDL2 CONFIG REQUIRED)
 
 # Add source to this project's executable.

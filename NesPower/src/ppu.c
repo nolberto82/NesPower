@@ -32,19 +32,17 @@ void ppu_init()
 	ppu_dummy2007 = 0;
 	screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, APP_WIDTH, APP_HEIGHT);
 
+	scale_x = 1;
+	scale_y = 1;
+	SDL_RenderSetScale(renderer, scale_x, scale_y);
+
 	if (screen == NULL)
 		exit(1);
 }
 
 void ppu_draw_frame()
 {
-	//printf("%i\n", -scroll_x);
-
-	u16 sx = scroll_x + ((ppuctrl & 1) ? 256 : 0);
-	SDL_Rect rect = { -sx, -8 * APP_SCALE, 208 * APP_SCALE, 208 * APP_SCALE };
-	//SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-	//SDL_RenderFillRect(renderer, &rect);
-	//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_Rect rect = { 0, -8 * APP_SCALE, 256, 240 };
 	SDL_UpdateTexture(screen, NULL, gfxdata, 256 * sizeof(unsigned char) * 4);
 	SDL_RenderCopy(renderer, screen, NULL, NULL);
 	SDL_RenderPresent(renderer);
@@ -125,6 +123,7 @@ void ppu_render()
 	{
 		ppu_clear_vblank();
 		ppu_clear_sprite0();
+		ppuctrl &= 0xfe;
 		cycle = 1;
 	}
 	else if (scanline == 262)
@@ -133,6 +132,7 @@ void ppu_render()
 		scanline = -1;
 		ppu_nmi = false;
 		//memset(gfxdata, 0, sizeof(gfxdata));
+		//return;
 	}
 
 	scanline++;
@@ -153,17 +153,29 @@ void increase_x()
 
 void ppu_render_background()
 {
+	if (scroll_x == 0)
+	{
+		int nm = 0;
+	}
+	else if (scroll_x > 0)
+	{
+		int nm = 0;
+	}
+
 	int patternaddr = ppuctrl & 0x10 ? 0x1000 : 0x0000;
 	int paladdr = ppuctrl & 0x10 ? 0x3f10 : 0x3f00;
-	int y = scanline / 8;
+	int y = scanline / 8 + 1;
 
 	u8 byte1, byte2;
 
 	u8 sx = scroll_x;
-	u8 xp = ppu_v & 0x1f;
+	//u8 xp = ppu_v & 0x1f;
 
 	int xMin = scroll_x / 8;
 	int xMax = (scroll_x + 256) / 8;
+
+	//ram[0x86] = 0x80;
+	//sx = 2;
 
 	for (int x = xMin; x <= xMax; x++)
 	{
@@ -200,6 +212,7 @@ void ppu_render_background()
 		{
 			byte1 = vram[patternaddr + tileid * 16 + row + 0];
 			byte2 = vram[patternaddr + tileid * 16 + row + 8];
+
 			for (int col = 0; col < 8; col++)
 			{
 				int xp = offx + (7 - col);
@@ -245,7 +258,7 @@ void ppu_render_sprites(u8 frontback)
 	int patternaddr = ppuctrl & 0x10 ? 0x0000 : 0x1000;
 	int paladdr = ppuctrl & 0x10 ? 0x3f10 : 0x3f00;
 
-	u8 bytes1[8], bytes2[8];
+	u8 byte1, byte2;
 	u8 y, tileid, att, x, i;
 
 	int sprcount = 0;
@@ -281,11 +294,14 @@ void ppu_render_sprites(u8 frontback)
 		bool flipH = att & 0x40;
 		bool flipV = att & 0x80;
 
-		memcpy(bytes1, vram + patternaddr + tileid * 16 + 0, 8);
-		memcpy(bytes2, vram + patternaddr + tileid * 16 + 8, 8);
+		//memcpy(bytes1, vram + patternaddr + tileid * 16 + 0, 8);
+		//memcpy(bytes2, vram + patternaddr + tileid * 16 + 8, 8);
 
 		for (int r = 0; r < 8; r++)
 		{
+			byte1 = vram[patternaddr + tileid * 16 + r + 0];
+			byte2 = vram[patternaddr + tileid * 16 + r + 8];
+
 			for (int cl = 0; cl < 8; cl++)
 			{
 				int col = 7 - cl;
@@ -305,13 +321,13 @@ void ppu_render_sprites(u8 frontback)
 					col = cl;
 				}
 
-				int bit0 = bytes1[row] & 1 ? 1 : 0;
-				int bit1 = bytes2[row] & 1 ? 2 : 0;
+				int bit0 = byte1 & 1 ? 1 : 0;
+				int bit1 = byte2 & 1 ? 1 : 0;
 
-				bytes1[row] >>= 1;
-				bytes2[row] >>= 1;
+				byte1 >>= 1;
+				byte2 >>= 1;
 
-				int palindex = bit0 | bit1;
+				int palindex = bit0 | bit1 * 2;
 
 				int colorindex = palindex + (att & 3) * 4;
 

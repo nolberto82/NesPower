@@ -55,7 +55,7 @@ int main()
 
 	sdl_init();
 
-	char* romname = { "../../../../tests/scroll_r.nes" };
+	char* romname = { "../../../../tests/smb.nes" };
 
 	if (!load_rom(romname))
 	{

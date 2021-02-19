@@ -72,7 +72,7 @@ build rebuild_cache: phony CMakeFiles\rebuild_cache.util
 build cmake_object_order_depends_target_NesPower: phony || NesPower\CMakeFiles\NesPower.dir
 
 build NesPower\CMakeFiles\NesPower.dir\main.c.obj: C_COMPILER__NesPower_Debug ..\..\..\NesPower\main.c || cmake_object_order_depends_target_NesPower
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1   /ZI
   INCLUDES = -IC:\dev\vcpkg\installed\x64-windows\include -IC:\dev\vcpkg\installed\x64-windows\include\SDL2
   OBJECT_DIR = NesPower\CMakeFiles\NesPower.dir
   OBJECT_FILE_DIR = NesPower\CMakeFiles\NesPower.dir
@@ -80,7 +80,7 @@ build NesPower\CMakeFiles\NesPower.dir\main.c.obj: C_COMPILER__NesPower_Debug ..
   TARGET_PDB = NesPower\NesPower.pdb
 
 build NesPower\CMakeFiles\NesPower.dir\src\cpu.c.obj: C_COMPILER__NesPower_Debug ..\..\..\NesPower\src\cpu.c || cmake_object_order_depends_target_NesPower
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1   /ZI
   INCLUDES = -IC:\dev\vcpkg\installed\x64-windows\include -IC:\dev\vcpkg\installed\x64-windows\include\SDL2
   OBJECT_DIR = NesPower\CMakeFiles\NesPower.dir
   OBJECT_FILE_DIR = NesPower\CMakeFiles\NesPower.dir\src
@@ -88,7 +88,7 @@ build NesPower\CMakeFiles\NesPower.dir\src\cpu.c.obj: C_COMPILER__NesPower_Debug
   TARGET_PDB = NesPower\NesPower.pdb
 
 build NesPower\CMakeFiles\NesPower.dir\src\ppu.c.obj: C_COMPILER__NesPower_Debug ..\..\..\NesPower\src\ppu.c || cmake_object_order_depends_target_NesPower
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1   /ZI
   INCLUDES = -IC:\dev\vcpkg\installed\x64-windows\include -IC:\dev\vcpkg\installed\x64-windows\include\SDL2
   OBJECT_DIR = NesPower\CMakeFiles\NesPower.dir
   OBJECT_FILE_DIR = NesPower\CMakeFiles\NesPower.dir\src
@@ -96,7 +96,7 @@ build NesPower\CMakeFiles\NesPower.dir\src\ppu.c.obj: C_COMPILER__NesPower_Debug
   TARGET_PDB = NesPower\NesPower.pdb
 
 build NesPower\CMakeFiles\NesPower.dir\src\mapper.c.obj: C_COMPILER__NesPower_Debug ..\..\..\NesPower\src\mapper.c || cmake_object_order_depends_target_NesPower
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1   /ZI
   INCLUDES = -IC:\dev\vcpkg\installed\x64-windows\include -IC:\dev\vcpkg\installed\x64-windows\include\SDL2
   OBJECT_DIR = NesPower\CMakeFiles\NesPower.dir
   OBJECT_FILE_DIR = NesPower\CMakeFiles\NesPower.dir\src
@@ -104,7 +104,7 @@ build NesPower\CMakeFiles\NesPower.dir\src\mapper.c.obj: C_COMPILER__NesPower_De
   TARGET_PDB = NesPower\NesPower.pdb
 
 build NesPower\CMakeFiles\NesPower.dir\src\controls.c.obj: C_COMPILER__NesPower_Debug ..\..\..\NesPower\src\controls.c || cmake_object_order_depends_target_NesPower
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1   /ZI
   INCLUDES = -IC:\dev\vcpkg\installed\x64-windows\include -IC:\dev\vcpkg\installed\x64-windows\include\SDL2
   OBJECT_DIR = NesPower\CMakeFiles\NesPower.dir
   OBJECT_FILE_DIR = NesPower\CMakeFiles\NesPower.dir\src
@@ -112,7 +112,7 @@ build NesPower\CMakeFiles\NesPower.dir\src\controls.c.obj: C_COMPILER__NesPower_
   TARGET_PDB = NesPower\NesPower.pdb
 
 build NesPower\CMakeFiles\NesPower.dir\src\tracer.c.obj: C_COMPILER__NesPower_Debug ..\..\..\NesPower\src\tracer.c || cmake_object_order_depends_target_NesPower
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1   /ZI
   INCLUDES = -IC:\dev\vcpkg\installed\x64-windows\include -IC:\dev\vcpkg\installed\x64-windows\include\SDL2
   OBJECT_DIR = NesPower\CMakeFiles\NesPower.dir
   OBJECT_FILE_DIR = NesPower\CMakeFiles\NesPower.dir\src
