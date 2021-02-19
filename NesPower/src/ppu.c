@@ -159,7 +159,7 @@ void ppu_render_background()
 	}
 	else if (scroll_x > 0)
 	{
-		int nm = 0;
+		int nm = 1;
 	}
 
 	int patternaddr = ppuctrl & 0x10 ? 0x1000 : 0x0000;
