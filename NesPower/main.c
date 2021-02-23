@@ -70,9 +70,10 @@ int main()
 
 	while (app_running)
 	{
-		cpu_execute();
+		cpu_step();
 
-		ppu_render();
+		//for (int i = 0; i < 3; i++)
+		ppu_step();
 
 		sdl_input();
 	}

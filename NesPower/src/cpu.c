@@ -61,7 +61,7 @@ void cpu_clean()
 	}
 }
 
-void cpu_execute()
+void cpu_step()
 {
 	//printf("%02X\n", ram[0xd4]);
 	while (ppucycles < CYCLES_PER_FRAME)

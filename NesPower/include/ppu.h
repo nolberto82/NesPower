@@ -2,7 +2,9 @@
 
 #include "types.h"
 
-u32 scanline;
+u32 ppu_scanline;
+u32 ppu_dots;
+u8 ppu_cyc;
 
 u8 ppuctrl;
 u8 ppumask;
@@ -12,6 +14,11 @@ u8 ppuoamdata;
 u8 ppuscroll;
 u8 ppuaddr;
 u8 ppudata;
+
+bool background8px;
+bool sprites8px;
+bool backgroundrender;
+bool spritesrender;
 
 bool latchtoggle;
 bool scrolltoggle;
@@ -23,15 +30,13 @@ u8 scroll_y;
 
 u16 ppu_v;
 u16 ppu_t;
-u8 ppu_x;
+u16 ppu_x;
 u8 ppu_w;
 
 int nametableaddr;
 int patternaddr;
 
 u8 framefinished;
-
-u32 cycle;
 
 u8 mirrornametable;
 
@@ -63,7 +68,7 @@ void ppu_set_sprite0();
 
 void ppu_clear_sprite0();
 
-void ppu_render();
+void ppu_step();
 
 void ppu_render_background();
 
@@ -71,10 +76,22 @@ void ppu_render_nametables();
 
 void ppu_render_sprites(u8 frontback);
 
+u8 get_background_pixel();
+
 int get_attribute_index(int x, int y, int attrib);
 
-void write_ppu_ctrl(u8 v);
+void ppu_ctrl_write(u8 val);
 
-void increase_x();
+void ppu_mask_write(u8 val);
+
+void ppu_scroll_write(u8 val);
+
+void ppu_addr_write(u8 val);
+
+void ppu_data_write(u8 val);
+
+void ppu_increase_v();
+
+void ppu_render_background_new();
 
 void ppu_clean();

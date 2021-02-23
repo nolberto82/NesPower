@@ -1,0 +1,22 @@
+# ninja log v5
+1	356	635658941	NesPower/CMakeFiles/NesPower.dir/main.c.obj	c504b5107dc18c2d
+9	360	635658941	NesPower/CMakeFiles/NesPower.dir/src/mapper.c.obj	2b4030641ff7108b
+21	364	635658941	NesPower/CMakeFiles/NesPower.dir/src/tracer.c.obj	190654ea4320b23c
+6	366	635658941	NesPower/CMakeFiles/NesPower.dir/src/controls.c.obj	235169137ddc3534
+17	390	635658941	NesPower/CMakeFiles/NesPower.dir/src/ppu.c.obj	4c5990a9de68cf9
+13	434	635658941	NesPower/CMakeFiles/NesPower.dir/src/cpu.c.obj	173b2991f2e55b89
+434	1589	635658942	NesPower/NesPower.exe	5b9fd4d25d1b753b
+10	481	635732522	NesPower/CMakeFiles/NesPower.dir/src/mapper.c.obj	2b4030641ff7108b
+2	483	635732522	NesPower/CMakeFiles/NesPower.dir/main.c.obj	c504b5107dc18c2d
+7	531	635732522	NesPower/CMakeFiles/NesPower.dir/src/ppu.c.obj	4c5990a9de68cf9
+14	553	635732522	NesPower/CMakeFiles/NesPower.dir/src/cpu.c.obj	173b2991f2e55b89
+553	1480	635732522	NesPower/NesPower.exe	5b9fd4d25d1b753b
+0	228	635732657	NesPower/CMakeFiles/NesPower.dir/src/ppu.c.obj	4c5990a9de68cf9
+229	1000	635732657	NesPower/NesPower.exe	5b9fd4d25d1b753b
+1	362	635732796	NesPower/CMakeFiles/NesPower.dir/src/ppu.c.obj	4c5990a9de68cf9
+362	1181	635732797	NesPower/NesPower.exe	5b9fd4d25d1b753b
+9	239	635761148	NesPower/CMakeFiles/NesPower.dir/src/mapper.c.obj	2b4030641ff7108b
+1	240	635761148	NesPower/CMakeFiles/NesPower.dir/main.c.obj	c504b5107dc18c2d
+5	278	635761148	NesPower/CMakeFiles/NesPower.dir/src/ppu.c.obj	4c5990a9de68cf9
+13	320	635761148	NesPower/CMakeFiles/NesPower.dir/src/cpu.c.obj	173b2991f2e55b89
+320	1151	635761148	NesPower/NesPower.exe	5b9fd4d25d1b753b

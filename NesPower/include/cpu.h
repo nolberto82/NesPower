@@ -34,7 +34,7 @@ void cpu_init(char* filename);
 
 void cpu_clean();
 
-void cpu_execute();
+void cpu_step();
 
 void set_cpu_status();
 

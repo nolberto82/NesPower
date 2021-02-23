@@ -142,19 +142,10 @@ void cpu_write(u16 addr, u8 val)
 	switch (addr)
 	{
 	case 0x2000:
-		ppuctrl = val;
-
-		//write_ppu_ctrl(val);
-		ppu_t = (ppu_t & 0xc00) | val << 10;
-
-		if (val & 0x10)
-		{
-			ppustatus |= val;
-			ram[0x2002] |= val;
-		}
+		ppu_ctrl_write(val);
 		break;
 	case 0x2001:
-		ppumask |= val;
+		ppu_mask_write(val);
 		break;
 	case 0x2003:
 		ppuoamaddr = val;
@@ -164,44 +155,13 @@ void cpu_write(u16 addr, u8 val)
 		oammem[ppuoamaddr++] = val;
 		break;
 	case 0x2005:
-		if (!ppu_w)
-		{
-			ppu_t = (ppu_t & 0x7fe0) | (val >> 3);
-			ppu_x = val & 0x07;
-			scroll_x = val;
-		}
-		else
-		{
-			ppu_t = (ppu_t & 0xc1f) | ((val & 0x07) << 12) | ((val & 0xF8) << 2);
-			scroll_y = val;
-		}
-
-		ppu_w ^= 1;
+		ppu_scroll_write(val);
 		break;
 	case 0x2006:
-		if (!ppu_w)
-		{
-			ppu_t = (ppu_t & 0xff) | val << 8;
-		}
-		else
-		{
-			ppu_t = (ppu_t & 0xff00) | val;
-			ppu_v = ppu_t;
-		}
-
-		ppu_w ^= 1;
+		ppu_addr_write(val);
 		break;
 	case 0x2007:
-		ppu_write(ppu_v, val);
-
-		if (ppuctrl & 0x04)
-		{
-			ppu_v += 32;
-		}
-		else
-		{
-			ppu_v++;
-		}
+		ppu_data_write(val);
 		break;
 	case 0x4014:
 		ppuoamdma = val;
@@ -231,14 +191,37 @@ void ppu_read_8_bytes(u16 addr, u8* bytearr)
 
 void ppu_write(u16 addr, u8 v)
 {
+
+	if (addr & 0x3f00)
+	{
+		//memcpy(&vram[0x3f00], &vram[0x3f10], 16);
+		if (addr == 0x3f10)
+		{
+			vram[addr - 0x10] = v;
+			vram[addr + 0x00] = v;
+		}
+		if (addr == 0x3f04)
+			vram[addr + 0x10] = v;
+		if (addr == 0x3f08)
+			vram[addr + 0x10] = v;
+		if (addr == 0x3f0c)
+			vram[addr + 0x10] = v;
+		if (addr == 0x3f20)
+		{
+			int yu = 0;
+		}
+	}
+
 	vram[addr] = v;
 }
 
 void mapper_clean()
 {
-	FILE* fpvram = fopen("vram.bin", "wb");
-	fwrite(vram, 0x4000, 1, fpvram);
-	fclose(fpvram);
+	FILE* fp = fopen("vram.bin", "wb");
+	fwrite(vram, 0x4000, 1, fp);
+	fp = fopen("ram.bin", "wb");
+	fwrite(ram, 0x10000, 1, fp);
+	fclose(fp);
 
 	if (rom)
 		free(rom);
