@@ -55,7 +55,12 @@ int main()
 
 	sdl_init();
 
-	char* romname = { "../../../../tests/smb.nes" };
+	//char* romname = { "../../../../tests/official_only.nes" };
+	char* romname = { "../../../../tests/rom_singles/04-zero_page.nes" };
+	//char* romname = { "../../../../tests/smb.nes" };
+	//char* romname = { "../../../../tests/scroll_r.nes" };
+	//char* romname = { "../../../../tests/nestest.nes" };
+
 
 	if (!load_rom(romname))
 	{

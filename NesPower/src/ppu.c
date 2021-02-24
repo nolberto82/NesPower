@@ -108,6 +108,7 @@ void ppu_addr_write(u8 val) //0x2006
 	}
 	else
 	{
+		ppuctrl &= 0xfc;
 		ppu_t = (ppu_t & ~0b11111111);
 		ppu_t |= val;// (ppu_t & 0xff00) | val;
 		ppu_v = ppu_t;
@@ -218,7 +219,6 @@ void ppu_step()
 		{
 			ppu_clear_vblank();
 			ppu_clear_sprite0();
-			ppuctrl &= 0xfc;
 			ppu_cyc = 0;
 		}
 	}
@@ -228,7 +228,7 @@ void ppu_step()
 		ppu_scanline = -1;
 		//ppu_cyc = -1;
 		ppu_nmi = false;
-		//memset(gfxdata, 0, sizeof(gfxdata));
+		//memset(gfxdata, &palettes[vram[0x3f00]], sizeof(gfxdata));
 		//return;
 	}
 
@@ -336,7 +336,6 @@ void ppu_render_background()
 	int xMin = (sx / 8) + left8;
 	int xMax = (sx + 256) / 8;
 
-
 	//ram[0x86] = 0x80;
 	//sx = 2;
 
@@ -398,7 +397,10 @@ void ppu_render_background()
 
 				int colorindex = bit2 * 4 + (bit0 | bit1 * 2);
 
-				gfxdata[yp * 256 + xp] = palettes[vram[0x3f00 + colorindex]];
+				if (colorindex > 0)
+					gfxdata[yp * 256 + xp] = palettes[vram[0x3f00 + colorindex]];
+				else
+					gfxdata[yp * 256 + xp] = palettes[vram[0x3f00]];
 				//ppu_draw_frame();
 			}
 		}

@@ -5,7 +5,7 @@ enum addrmode { IMPL, ACCU, IMME, ZERP, ZERX, ZERY, ABSO, ABSX, ABSY, INDX, INDY
 
 const enum addrmode modes[256] =
 {
-	IMME, INDX, ERRO, INDX, ZERP, ZERP, ZERP, ZERP, IMPL, IMME, ACCU, IMME, ABSO, ABSO, ABSO, ABSO,
+	IMME, INDX, ERRO, INDX, ERRO, ZERP, ZERP, ZERP, IMPL, IMME, ACCU, IMME, ABSO, ABSO, ABSO, ABSO,
 	RELA, INDY, ERRO, INDY, ZERX, ZERX, ZERX, ZERX, IMPL, ABSY, IMPL, ABSY, ABSX, ABSX, ABSX, ABSX,
 	ABSO, INDX, ERRO, INDX, ZERP, ZERP, ZERP, ZERP, IMPL, IMME, ACCU, IMME, ABSO, ABSO, ABSO, ABSO,
 	RELA, INDY, ERRO, INDY, ZERX, ZERX, ZERX, ZERX, IMPL, ABSY, IMPL, ABSY, ABSX, ABSX, ABSX, ABSX,
@@ -46,6 +46,7 @@ const char opnames[256][3] =
 void trace_disasm(u16 pc, u8 op, u8 x, u8 y, u8 sp, int cycles, char* strtrace)
 {
 	const char opstr[4] = { opnames[op][0],opnames[op][1],opnames[op][2],'\0' };
+	const char* opstrund = { "UNDEFINED" };
 	char strcyc[64];
 	char strpc[64];
 	char strins[64];
@@ -155,9 +156,13 @@ void trace_disasm(u16 pc, u8 op, u8 x, u8 y, u8 sp, int cycles, char* strtrace)
 		sprintf(strins, "%s ($%04X) = $%04X", opstr, addr, addr2);
 		break;
 	case RELA:
-		addr = pc + (u8)b1 + 2;
+		addr = pc + (s8)b1 + 2;
 		sprintf(strpc, "%04X:%02X %02X", pc, op, b1);
 		sprintf(strins, "%s $%02X", opstr, addr);
+		break;
+	case ERRO:
+		sprintf(strpc, "%04X:%02X", pc, op);
+		sprintf(strins, "%s", opstrund);
 		break;
 	default:
 		break;

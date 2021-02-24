@@ -7,7 +7,7 @@
 
 u8 cyclestable[] =
 {
-	7,6,0,0,0,3,5,0,3,2,2,0,0,4,6,0,
+	7,6,0,0,1,3,5,0,3,2,2,0,0,4,6,0,
 	2,5,0,0,0,4,6,0,2,4,0,0,0,4,7,0,
 	6,6,0,0,3,3,5,0,4,2,2,0,4,4,6,6,
 	2,5,0,0,0,4,6,0,2,4,0,0,0,4,7,0,
@@ -44,7 +44,12 @@ void cpu_init(char* filename)
 	app_running = true;
 	//app_tracing = true;
 
-	if (app_tracing)
+	cpu_create_log_file();
+}
+
+void cpu_create_log_file()
+{
+	if (app_tracing && ftrace == NULL)
 	{
 		ftrace = fopen("tracenes.log", "w");
 		char header[32] = { "FCEUX 2.2.3 - Trace Log File\n" };
@@ -66,8 +71,10 @@ void cpu_step()
 	//printf("%02X\n", ram[0xd4]);
 	while (ppucycles < CYCLES_PER_FRAME)
 	{
-		if (pc == 0xc089)
+		if (pc == 0xe39c)
 		{
+			app_tracing = true;
+			cpu_create_log_file();
 			int yu = 0;
 		}
 
@@ -293,6 +300,9 @@ void cpu_step()
 		case 0x60: { RTS(); } break;
 		case 0x40: { RTI(); } break;
 		case 0x00: { BRK(); } break;
+
+			//Unofficial
+		case 0x04: { } break;
 		}
 
 		if (ppu_nmi)
@@ -399,7 +409,7 @@ void TSX()
 {
 	x = sp;
 	set_zero(x == 0);
-	set_negative(x & 0x80);
+	set_negative(x >> 7);
 }
 
 void TXS()
@@ -420,7 +430,7 @@ void PLA()
 	sp++;
 	a = cpu_read(sp | 0x100);
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void PHP()
@@ -562,7 +572,7 @@ void BIT(u16 addr)
 	u8 b = cpu_read(addr);
 	u8 t = a & b;
 	set_zero(t == 0);
-	set_negative(b & 0x80);
+	set_negative(b >> 7);
 	set_overflow(b & 0x40);
 }
 
@@ -570,14 +580,14 @@ void AND()
 {
 	a &= cpu_read(pc);
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void ANDM(u16 addr)
 {
 	a &= cpu_read(addr);
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void DEC(u16 addr)
@@ -585,7 +595,7 @@ void DEC(u16 addr)
 	u8 b = cpu_read(addr) - 1;
 	ram[addr] = b;
 	set_zero(b == 0);
-	set_negative(b & 0x80);
+	set_negative(b >> 7);
 }
 
 void INC(u16 addr)
@@ -593,7 +603,7 @@ void INC(u16 addr)
 	u8 b = cpu_read(addr) + 1;
 	ram[addr] = b;
 	set_zero(b == 0);
-	set_negative(b & 0x80);
+	set_negative(b >> 7);
 }
 
 void STY(u16 addr)
@@ -618,28 +628,28 @@ void LDY()
 {
 	y = cpu_read(pc);
 	set_zero(y == 0);
-	set_negative(y & 0x80);
+	set_negative(y >> 7);
 }
 
 void LDYM(u16 addr)
 {
 	y = cpu_read(addr);
 	set_zero(y == 0);
-	set_negative(y & 0x80);
+	set_negative(y >> 7);
 }
 
 void LDX()
 {
 	x = cpu_read(pc);
 	set_zero(x == 0);
-	set_negative(x & 0x80);
+	set_negative(x >> 7);
 }
 
 void LDXM(u16 addr)
 {
 	x = cpu_read(addr);
 	set_zero(x == 0);
-	set_negative(x & 0x80);
+	set_negative(x >> 7);
 }
 
 void CPY()
@@ -648,7 +658,7 @@ void CPY()
 	int t = y - v;
 	set_carry(y >= v);
 	set_zero(y == v);
-	set_negative(t & 0x80);
+	set_negative((t & 0xff) >> 7);
 }
 
 void CPYM(u16 addr)
@@ -657,7 +667,7 @@ void CPYM(u16 addr)
 	int t = y - v;
 	set_carry(y >= v);
 	set_zero(y == v);
-	set_negative(t & 0x80);
+	set_negative((t & 0xff) >> 7);
 }
 
 void CPX()
@@ -666,16 +676,16 @@ void CPX()
 	int t = x - v;
 	set_carry(x >= v);
 	set_zero(x == v);
-	set_negative(t & 0x80);
+	set_negative((t & 0xff) >> 7);
 }
 
 void CPXM(u16 addr)
 {
 	u8 v = cpu_read(addr);
-	int t = x - v;
+	u16 t = x - v;
 	set_carry(x >= v);
 	set_zero(x == v);
-	set_negative(t & 0x80);
+	set_negative((t & 0xff) >> 7);
 }
 
 void CMP()
@@ -684,7 +694,7 @@ void CMP()
 	int t = a - v;
 	set_carry(a >= v);
 	set_zero(a == v);
-	set_negative(t & 0x80);
+	set_negative((t & 0xff) >> 7);
 }
 
 void CMPM(u16 addr)
@@ -693,35 +703,35 @@ void CMPM(u16 addr)
 	int t = a - v;
 	set_carry(a >= v);
 	set_zero(a == v);
-	set_negative(t & 0x80);
+	set_negative((t & 0xff) >> 7);
 }
 
 void EOR()
 {
 	a ^= cpu_read(pc);
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void EORM(u16 addr)
 {
 	a ^= cpu_read(addr);
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void ORA()
 {
 	a |= cpu_read(pc);
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void ORAM(u16 addr)
 {
 	a |= cpu_read(addr);
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void SBC()
@@ -729,7 +739,7 @@ void SBC()
 	u8 v = cpu_read(pc);
 	u16 r = a + ~v + (fc ? 1 : 0);
 	set_zero((r & 0xff) == 0);
-	set_negative(r & 0x80);
+	set_negative((r & 0xff) >> 7);
 	set_overflow((a ^ v) & (a ^ r) & 0x80);
 	set_carry((r & 0xff00) == 0);
 	a = r;
@@ -740,7 +750,7 @@ void SBCM(u16 addr)
 	u8 v = cpu_read(addr);
 	u16 r = a + ~v + (fc ? 1 : 0);
 	set_zero((r & 0xff) == 0);
-	set_negative(r & 0x80);
+	set_negative((r & 0xff) >> 7);
 	set_overflow((a ^ v) & (a ^ r) & 0x80);
 	set_carry((r & 0xff00) == 0);
 	a = r;
@@ -751,7 +761,7 @@ void ADC()
 	u8 v = cpu_read(pc);
 	u16 r = a + v + (fc ? 1 : 0);
 	set_zero((r & 0xff) == 0);
-	set_negative(r & 0x80);
+	set_negative((r & 0xff) >> 7);
 	set_overflow((~(a ^ v) & (a ^ r) & 0x80));
 	set_carry(r > 255);
 	a = r;
@@ -762,7 +772,7 @@ void ADCM(u16 addr)
 	u8 v = cpu_read(addr);
 	u16 r = a + v + (fc ? 1 : 0);
 	set_zero((r & 0xff) == 0);
-	set_negative(r & 0x80);
+	set_negative((r & 0xff) >> 7);
 	set_overflow(~(a ^ v) & (a ^ r) & 0x80);
 	set_carry(r > 255);
 	a = r;
@@ -772,14 +782,14 @@ void LDA()
 {
 	a = cpu_read(pc);;
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void LDAM(u16 addr)
 {
 	a = cpu_read(addr);
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void update_flags()
@@ -798,56 +808,56 @@ void DEY()
 {
 	y--;
 	set_zero(y == 0);
-	set_negative(y & 0x80);
+	set_negative(y >> 7);
 }
 
 void DEX()
 {
 	x--;
 	set_zero(x == 0);
-	set_negative(x & 0x80);
+	set_negative(x >> 7);
 }
 
 void INY()
 {
 	y++;
 	set_zero(y == 0);
-	set_negative(y & 0x80);
+	set_negative(y >> 7);
 }
 
 void INX()
 {
 	x++;
 	set_zero(x == 0);
-	set_negative(x & 0x80);
+	set_negative(x >> 7);
 }
 
 void TAY()
 {
 	y = a;
 	set_zero(y == 0);
-	set_negative(y & 0x80);
+	set_negative(y >> 7);
 }
 
 void TAX()
 {
 	x = a;
 	set_zero(x == 0);
-	set_negative(x & 0x80);
+	set_negative(x >> 7);
 }
 
 void TYA()
 {
 	a = y;
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void TXA()
 {
 	a = x;
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void ROL()
@@ -858,7 +868,7 @@ void ROL()
 	if (fc)
 		a |= (1 << 0);
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 	set_carry(bit7);
 }
 
@@ -873,7 +883,7 @@ void ROLM(u16 addr)
 	set_carry(bit7);
 	ram[addr] = r;
 	set_zero(r == 0);
-	set_negative(r & 0x80);
+	set_negative((r & 0xff) >> 7);
 }
 
 void ASL()
@@ -881,17 +891,23 @@ void ASL()
 	set_carry(a & (1 << 7));
 	a = (a << 1) & 0xfe;
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void ASLM(u16 addr)
 {
+	if ((pc - 1) == 0x3a0 && ram[0x3a1] == 0xfe)
+	{
+		int yu = 0;
+	}
+
+	u16 t;
 	u8 r = cpu_read(addr);
-	set_carry(a & (1 << 7));
-	r = (a << 1) & 0xfe;
+	set_carry((r & (1 << 7)) >> 7);
+	r = (r << 1) & 0xfe;
 	ram[addr] = r;
-	set_zero(r);
-	set_negative(r);
+	set_zero(r == 0);
+	set_negative(r >> 7);
 }
 
 void ROR()
@@ -902,7 +918,7 @@ void ROR()
 	if (fc)
 		a |= (1 << 7);
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 	set_carry(bit0);
 }
 
@@ -916,8 +932,8 @@ void RORM(u16 addr)
 		r |= (1 << 7);
 	set_carry(bit0);
 	ram[addr] = r;
-	set_zero(r);
-	set_negative(r);
+	set_zero(r == 0);
+	set_negative((r & 0xff) >> 7);
 }
 
 void LSR()
@@ -925,7 +941,7 @@ void LSR()
 	set_carry(a & (1 << 0));
 	a = ((a >> 1) & 0x7f);
 	set_zero(a == 0);
-	set_negative(a & 0x80);
+	set_negative(a >> 7);
 }
 
 void LSRM(u16 addr)
@@ -934,11 +950,11 @@ void LSRM(u16 addr)
 	set_carry(r & (1 << 0));
 	r = ((r >> 1) & 0x7f);
 	ram[addr] = r;
-	set_zero(r);
-	set_negative(r);
+	set_zero(r == 0);
+	set_negative((r & 0xff) >> 7);
 }
 
-void set_carry(u8 v)
+void set_carry(bool v)
 {
 	fc = v;
 
@@ -952,7 +968,7 @@ void set_carry(u8 v)
 	}
 }
 
-void set_zero(u8 v)
+void set_zero(bool v)
 {
 	fz = v;
 
@@ -966,7 +982,7 @@ void set_zero(u8 v)
 	}
 }
 
-void set_negative(u8 v)
+void set_negative(bool v)
 {
 	fn = v;
 
@@ -980,7 +996,7 @@ void set_negative(u8 v)
 	}
 }
 
-void set_overflow(u8 v)
+void set_overflow(bool v)
 {
 	fv = v;
 

@@ -191,26 +191,11 @@ void ppu_read_8_bytes(u16 addr, u8* bytearr)
 
 void ppu_write(u16 addr, u8 v)
 {
+	for (int i = 0; i < 32; i++)
+		memcpy(&vram[0x3f00 + i * 0x4], &vram[0x3f10], 1);
 
-	if (addr & 0x3f00)
-	{
-		//memcpy(&vram[0x3f00], &vram[0x3f10], 16);
-		if (addr == 0x3f10)
-		{
-			vram[addr - 0x10] = v;
-			vram[addr + 0x00] = v;
-		}
-		if (addr == 0x3f04)
-			vram[addr + 0x10] = v;
-		if (addr == 0x3f08)
-			vram[addr + 0x10] = v;
-		if (addr == 0x3f0c)
-			vram[addr + 0x10] = v;
-		if (addr == 0x3f20)
-		{
-			int yu = 0;
-		}
-	}
+	for (int i = 0; i < 7; i++)
+		memcpy(&vram[0x3f20 + i * 0x20], &vram[0x3f00], 0x20);
 
 	vram[addr] = v;
 }

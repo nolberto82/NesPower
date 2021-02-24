@@ -32,6 +32,8 @@ FILE* ftrace;
 
 void cpu_init(char* filename);
 
+void cpu_create_log_file();
+
 void cpu_clean();
 
 void cpu_step();
@@ -168,13 +170,13 @@ void LSR();
 
 void LSRM(u16 addr);
 
-void set_carry(u8 v);
+void set_carry(bool v);
 
-void set_zero(u8 v);
+void set_zero(bool v);
 
-void set_negative(u8 v);
+void set_negative(bool v);
 
-void set_overflow(u8 v);
+void set_overflow(bool v);
 
 u8 get_imme();
 
